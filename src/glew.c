@@ -102,7 +102,7 @@ void* dlGetProcAddress (const GLubyte* name)
 #include <string.h>
 #include <AvailabilityMacros.h>
 
-#ifdef MAC_OS_X_VERSION_10_3
+#if defined(MAC_OS_X_VERSION_10_3) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
 
 #include <dlfcn.h>
 
@@ -152,7 +152,7 @@ void* NSGLGetProcAddress (const GLubyte *name)
   return NULL;
 #endif
 }
-#endif /* MAC_OS_X_VERSION_10_3 */
+#endif /* defined(MAC_OS_X_VERSION_10_3) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3 */
 #endif /* __APPLE__ */
 
 /*
@@ -2053,6 +2053,9 @@ PFNGLLIGHTENVIEXTPROC __glewLightEnviEXT = NULL;
 
 PFNGLBLITFRAMEBUFFEREXTPROC __glewBlitFramebufferEXT = NULL;
 
+PFNGLBLITFRAMEBUFFERLAYEREXTPROC __glewBlitFramebufferLayerEXT = NULL;
+PFNGLBLITFRAMEBUFFERLAYERSEXTPROC __glewBlitFramebufferLayersEXT = NULL;
+
 PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC __glewRenderbufferStorageMultisampleEXT = NULL;
 
 PFNGLBINDFRAMEBUFFEREXTPROC __glewBindFramebufferEXT = NULL;
@@ -3852,6 +3855,7 @@ GLboolean __GLEW_EXT_fog_coord = GL_FALSE;
 GLboolean __GLEW_EXT_frag_depth = GL_FALSE;
 GLboolean __GLEW_EXT_fragment_lighting = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_blit = GL_FALSE;
+GLboolean __GLEW_EXT_framebuffer_blit_layers = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_multisample = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_multisample_blit_scaled = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_object = GL_FALSE;
@@ -4017,6 +4021,7 @@ GLboolean __GLEW_IMG_bindless_texture = GL_FALSE;
 GLboolean __GLEW_IMG_framebuffer_downsample = GL_FALSE;
 GLboolean __GLEW_IMG_multisampled_render_to_texture = GL_FALSE;
 GLboolean __GLEW_IMG_program_binary = GL_FALSE;
+GLboolean __GLEW_IMG_pvric_end_to_end_signature = GL_FALSE;
 GLboolean __GLEW_IMG_read_format = GL_FALSE;
 GLboolean __GLEW_IMG_shader_binary = GL_FALSE;
 GLboolean __GLEW_IMG_texture_compression_pvrtc = GL_FALSE;
@@ -5461,6 +5466,9 @@ static const char * _glewExtensionLookup[] = {
 #ifdef GL_EXT_framebuffer_blit
   "GL_EXT_framebuffer_blit",
 #endif
+#ifdef GL_EXT_framebuffer_blit_layers
+  "GL_EXT_framebuffer_blit_layers",
+#endif
 #ifdef GL_EXT_framebuffer_multisample
   "GL_EXT_framebuffer_multisample",
 #endif
@@ -5955,6 +5963,9 @@ static const char * _glewExtensionLookup[] = {
 #endif
 #ifdef GL_IMG_program_binary
   "GL_IMG_program_binary",
+#endif
+#ifdef GL_IMG_pvric_end_to_end_signature
+  "GL_IMG_pvric_end_to_end_signature",
 #endif
 #ifdef GL_IMG_read_format
   "GL_IMG_read_format",
@@ -7290,7 +7301,7 @@ static const char * _glewExtensionLookup[] = {
 
 
 /* Detected in the extension string or strings */
-static GLboolean  _glewExtensionString[947];
+static GLboolean  _glewExtensionString[949];
 /* Detected via extension string or experimental mode */
 static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_3DFX_multisample
@@ -8310,6 +8321,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_EXT_framebuffer_blit
   &__GLEW_EXT_framebuffer_blit,
 #endif
+#ifdef GL_EXT_framebuffer_blit_layers
+  &__GLEW_EXT_framebuffer_blit_layers,
+#endif
 #ifdef GL_EXT_framebuffer_multisample
   &__GLEW_EXT_framebuffer_multisample,
 #endif
@@ -8804,6 +8818,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #endif
 #ifdef GL_IMG_program_binary
   &__GLEW_IMG_program_binary,
+#endif
+#ifdef GL_IMG_pvric_end_to_end_signature
+  &__GLEW_IMG_pvric_end_to_end_signature,
 #endif
 #ifdef GL_IMG_read_format
   &__GLEW_IMG_read_format,
@@ -10312,6 +10329,7 @@ static GLboolean _glewInit_GL_EXT_external_buffer ();
 static GLboolean _glewInit_GL_EXT_fog_coord ();
 static GLboolean _glewInit_GL_EXT_fragment_lighting ();
 static GLboolean _glewInit_GL_EXT_framebuffer_blit ();
+static GLboolean _glewInit_GL_EXT_framebuffer_blit_layers ();
 static GLboolean _glewInit_GL_EXT_framebuffer_multisample ();
 static GLboolean _glewInit_GL_EXT_framebuffer_object ();
 static GLboolean _glewInit_GL_EXT_geometry_shader4 ();
@@ -14209,6 +14227,20 @@ static GLboolean _glewInit_GL_EXT_framebuffer_blit ()
 }
 
 #endif /* GL_EXT_framebuffer_blit */
+
+#ifdef GL_EXT_framebuffer_blit_layers
+
+static GLboolean _glewInit_GL_EXT_framebuffer_blit_layers ()
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glBlitFramebufferLayerEXT = (PFNGLBLITFRAMEBUFFERLAYEREXTPROC)glewGetProcAddress((const GLubyte*)"glBlitFramebufferLayerEXT")) == NULL) || r;
+  r = ((glBlitFramebufferLayersEXT = (PFNGLBLITFRAMEBUFFERLAYERSEXTPROC)glewGetProcAddress((const GLubyte*)"glBlitFramebufferLayersEXT")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_EXT_framebuffer_blit_layers */
 
 #ifdef GL_EXT_framebuffer_multisample
 
@@ -18871,6 +18903,9 @@ GLenum GLEWAPIENTRY glewContextInit (void)
 #ifdef GL_EXT_framebuffer_blit
   if (glewExperimental || GLEW_EXT_framebuffer_blit) GLEW_EXT_framebuffer_blit = !_glewInit_GL_EXT_framebuffer_blit();
 #endif /* GL_EXT_framebuffer_blit */
+#ifdef GL_EXT_framebuffer_blit_layers
+  if (glewExperimental || GLEW_EXT_framebuffer_blit_layers) GLEW_EXT_framebuffer_blit_layers = !_glewInit_GL_EXT_framebuffer_blit_layers();
+#endif /* GL_EXT_framebuffer_blit_layers */
 #ifdef GL_EXT_framebuffer_multisample
   if (glewExperimental || GLEW_EXT_framebuffer_multisample) GLEW_EXT_framebuffer_multisample = !_glewInit_GL_EXT_framebuffer_multisample();
 #endif /* GL_EXT_framebuffer_multisample */
@@ -19923,6 +19958,7 @@ GLboolean __EGLEW_NV_post_sub_buffer = GL_FALSE;
 GLboolean __EGLEW_NV_quadruple_buffer = GL_FALSE;
 GLboolean __EGLEW_NV_robustness_video_memory_purge = GL_FALSE;
 GLboolean __EGLEW_NV_stream_consumer_eglimage = GL_FALSE;
+GLboolean __EGLEW_NV_stream_consumer_eglimage_use_scanout_attrib = GL_FALSE;
 GLboolean __EGLEW_NV_stream_consumer_gltexture_yuv = GL_FALSE;
 GLboolean __EGLEW_NV_stream_cross_display = GL_FALSE;
 GLboolean __EGLEW_NV_stream_cross_object = GL_FALSE;
@@ -21317,6 +21353,9 @@ GLenum eglewInit (EGLDisplay display)
   EGLEW_NV_stream_consumer_eglimage = _glewSearchExtension("EGL_NV_stream_consumer_eglimage", extStart, extEnd);
   if (glewExperimental || EGLEW_NV_stream_consumer_eglimage) EGLEW_NV_stream_consumer_eglimage = !_glewInit_EGL_NV_stream_consumer_eglimage();
 #endif /* EGL_NV_stream_consumer_eglimage */
+#ifdef EGL_NV_stream_consumer_eglimage_use_scanout_attrib
+  EGLEW_NV_stream_consumer_eglimage_use_scanout_attrib = _glewSearchExtension("EGL_NV_stream_consumer_eglimage_use_scanout_attrib", extStart, extEnd);
+#endif /* EGL_NV_stream_consumer_eglimage_use_scanout_attrib */
 #ifdef EGL_NV_stream_consumer_gltexture_yuv
   EGLEW_NV_stream_consumer_gltexture_yuv = _glewSearchExtension("EGL_NV_stream_consumer_gltexture_yuv", extStart, extEnd);
   if (glewExperimental || EGLEW_NV_stream_consumer_gltexture_yuv) EGLEW_NV_stream_consumer_gltexture_yuv = !_glewInit_EGL_NV_stream_consumer_gltexture_yuv();
@@ -26060,6 +26099,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_EXT_framebuffer_blit_layers
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"framebuffer_blit_layers", 23))
+        {
+          ret = GLEW_EXT_framebuffer_blit_layers;
+          continue;
+        }
+#endif
 #ifdef GL_EXT_framebuffer_multisample
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"framebuffer_multisample", 23))
         {
@@ -27227,6 +27273,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"program_binary", 14))
         {
           ret = GLEW_IMG_program_binary;
+          continue;
+        }
+#endif
+#ifdef GL_IMG_pvric_end_to_end_signature
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"pvric_end_to_end_signature", 26))
+        {
+          ret = GLEW_IMG_pvric_end_to_end_signature;
           continue;
         }
 #endif
@@ -32321,6 +32374,13 @@ GLboolean eglewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_consumer_eglimage", 24))
         {
           ret = EGLEW_NV_stream_consumer_eglimage;
+          continue;
+        }
+#endif
+#ifdef EGL_NV_stream_consumer_eglimage_use_scanout_attrib
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_consumer_eglimage_use_scanout_attrib", 43))
+        {
+          ret = EGLEW_NV_stream_consumer_eglimage_use_scanout_attrib;
           continue;
         }
 #endif
