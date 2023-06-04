@@ -20,6 +20,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 include("GeneratePkgConfig.cmake")
 
+if (POLICY CMP0077)
+	cmake_policy(SET CMP0077 NEW)
+endif()
+
 option(glew-cmake_BUILD_SHARED "Build the shared glew library" OFF)
 option(glew-cmake_BUILD_STATIC "Build the static glew library" ON)
 option(USE_GLU "Use GLU" OFF)
@@ -55,17 +59,21 @@ endif()
 
 if(POLICY CMP0072)
 	set(OpenGL_GL_PREFERENCE GLVND)
-	if(NOT (WIN32 OR APPLE))
-		set(USE_GLVND YES)
-	else()
-		# GLVND is not supported
-		set(USE_GLVND NO)
-	endif()
-else()
-	set(USE_GLVND NO)
 endif()
 
-find_package(OpenGL REQUIRED)
+if(NOT (WIN32 OR APPLE))
+	message("Try to find OpenGL with GLVND")
+	find_package(OpenGL REQUIRED
+		COMPONENTS OpenGL GLX)
+endif()
+
+if(OPENGL_FOUND AND OpenGL_GLX_FOUND AND TARGET OpenGL::OpenGL)
+	set(USE_GLVND YES)
+else()
+	message("GLVND not supported. Try find OpenGL legacy")
+	find_package(OpenGL REQUIRED)
+	set(USE_GLVND NO)
+endif()
 
 set(pc_requires)
 
@@ -142,13 +150,24 @@ else()
 	set(INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 endif()
 
+execute_process(
+	COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/test_fs_support_case_sensitivity
+	COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/test_fs_support_CASE_sensitivity)
+file(GLOB TEST_FILE_LIST ${CMAKE_BINARY_DIR}/test_fs_support_*_sensitivity)
+list(LENGTH TEST_FILE_LIST TEST_FILE_COUNT)
+if(TEST_FILE_COUNT EQUAL 2)
+	set(SUPPORT_CASE_SENSITIVE_FS YES)
+else()
+	set(SUPPORT_CASE_SENSITIVE_FS NO)
+endif()
+
 function(set_representative_target TARGET)
 	set_target_properties(${TARGET} PROPERTIES
 			OUTPUT_NAME "glew"
 			DEBUG_POSTFIX d)
 
 	# Windows & macOS use case-insensetive FS. do not create symbolic link
-	if(NOT (WIN32 OR APPLE))
+	if(SUPPORT_CASE_SENSITIVE_FS)
 		get_target_property(TARGET_TYPE ${TARGET} TYPE)
 		if(TARGET_TYPE STREQUAL STATIC_LIBRARY)
 			set(EXT ".a")
