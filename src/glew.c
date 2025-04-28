@@ -1,6 +1,6 @@
 /*
 ** The OpenGL Extension Wrangler Library
-** Copyright (C) 2008-2019, Nigel Stewart <nigels[]users sourceforge net>
+** Copyright (C) 2008-2024, Nigel Stewart <nigels[]nigels com>
 ** Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
 ** Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
@@ -1724,7 +1724,6 @@ PFNGLBLENDFUNCSEPARATEEXTPROC __glewBlendFuncSeparateEXT = NULL;
 PFNGLBLENDEQUATIONEXTPROC __glewBlendEquationEXT = NULL;
 
 PFNGLBUFFERSTORAGEEXTPROC __glewBufferStorageEXT = NULL;
-PFNGLNAMEDBUFFERSTORAGEEXTPROC __glewNamedBufferStorageEXT = NULL;
 
 PFNGLCLEARTEXIMAGEEXTPROC __glewClearTexImageEXT = NULL;
 PFNGLCLEARTEXSUBIMAGEEXTPROC __glewClearTexSubImageEXT = NULL;
@@ -2273,7 +2272,6 @@ PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC __glewFramebufferPixelLocalStorageS
 PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC __glewGetFramebufferPixelLocalStorageSizeEXT = NULL;
 
 PFNGLTEXPAGECOMMITMENTEXTPROC __glewTexPageCommitmentEXT = NULL;
-PFNGLTEXTUREPAGECOMMITMENTEXTPROC __glewTexturePageCommitmentEXT = NULL;
 
 PFNGLACTIVESTENCILFACEEXTPROC __glewActiveStencilFaceEXT = NULL;
 
@@ -3931,6 +3929,7 @@ GLboolean __GLEW_EXT_semaphore_win32 = GL_FALSE;
 GLboolean __GLEW_EXT_separate_depth_stencil = GL_FALSE;
 GLboolean __GLEW_EXT_separate_shader_objects = GL_FALSE;
 GLboolean __GLEW_EXT_separate_specular_color = GL_FALSE;
+GLboolean __GLEW_EXT_shader_clock = GL_FALSE;
 GLboolean __GLEW_EXT_shader_framebuffer_fetch = GL_FALSE;
 GLboolean __GLEW_EXT_shader_framebuffer_fetch_non_coherent = GL_FALSE;
 GLboolean __GLEW_EXT_shader_group_vote = GL_FALSE;
@@ -4073,6 +4072,7 @@ GLboolean __GLEW_MESA_pack_invert = GL_FALSE;
 GLboolean __GLEW_MESA_program_binary_formats = GL_FALSE;
 GLboolean __GLEW_MESA_resize_buffers = GL_FALSE;
 GLboolean __GLEW_MESA_shader_integer_functions = GL_FALSE;
+GLboolean __GLEW_MESA_texture_const_bandwidth = GL_FALSE;
 GLboolean __GLEW_MESA_tile_raster_order = GL_FALSE;
 GLboolean __GLEW_MESA_window_pos = GL_FALSE;
 GLboolean __GLEW_MESA_ycbcr_texture = GL_FALSE;
@@ -5679,6 +5679,9 @@ static const char * _glewExtensionLookup[] = {
 #ifdef GL_EXT_separate_specular_color
   "GL_EXT_separate_specular_color",
 #endif
+#ifdef GL_EXT_shader_clock
+  "GL_EXT_shader_clock",
+#endif
 #ifdef GL_EXT_shader_framebuffer_fetch
   "GL_EXT_shader_framebuffer_fetch",
 #endif
@@ -6104,6 +6107,9 @@ static const char * _glewExtensionLookup[] = {
 #endif
 #ifdef GL_MESA_shader_integer_functions
   "GL_MESA_shader_integer_functions",
+#endif
+#ifdef GL_MESA_texture_const_bandwidth
+  "GL_MESA_texture_const_bandwidth",
 #endif
 #ifdef GL_MESA_tile_raster_order
   "GL_MESA_tile_raster_order",
@@ -7331,7 +7337,7 @@ static const char * _glewExtensionLookup[] = {
 
 
 /* Detected in the extension string or strings */
-static GLboolean  _glewExtensionString[954];
+static GLboolean  _glewExtensionString[956];
 /* Detected via extension string or experimental mode */
 static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_3DFX_multisample
@@ -8549,6 +8555,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #ifdef GL_EXT_separate_specular_color
   &__GLEW_EXT_separate_specular_color,
 #endif
+#ifdef GL_EXT_shader_clock
+  &__GLEW_EXT_shader_clock,
+#endif
 #ifdef GL_EXT_shader_framebuffer_fetch
   &__GLEW_EXT_shader_framebuffer_fetch,
 #endif
@@ -8974,6 +8983,9 @@ static GLboolean* _glewExtensionEnabled[] = {
 #endif
 #ifdef GL_MESA_shader_integer_functions
   &__GLEW_MESA_shader_integer_functions,
+#endif
+#ifdef GL_MESA_texture_const_bandwidth
+  &__GLEW_MESA_texture_const_bandwidth,
 #endif
 #ifdef GL_MESA_tile_raster_order
   &__GLEW_MESA_tile_raster_order,
@@ -13657,7 +13669,6 @@ static GLboolean _glewInit_GL_EXT_buffer_storage ()
   GLboolean r = GL_FALSE;
 
   r = ((glBufferStorageEXT = (PFNGLBUFFERSTORAGEEXTPROC)glewGetProcAddress((const GLubyte*)"glBufferStorageEXT")) == NULL) || r;
-  r = ((glNamedBufferStorageEXT = (PFNGLNAMEDBUFFERSTORAGEEXTPROC)glewGetProcAddress((const GLubyte*)"glNamedBufferStorageEXT")) == NULL) || r;
 
   return r;
 }
@@ -14921,7 +14932,6 @@ static GLboolean _glewInit_GL_EXT_sparse_texture ()
   GLboolean r = GL_FALSE;
 
   r = ((glTexPageCommitmentEXT = (PFNGLTEXPAGECOMMITMENTEXTPROC)glewGetProcAddress((const GLubyte*)"glTexPageCommitmentEXT")) == NULL) || r;
-  r = ((glTexturePageCommitmentEXT = (PFNGLTEXTUREPAGECOMMITMENTEXTPROC)glewGetProcAddress((const GLubyte*)"glTexturePageCommitmentEXT")) == NULL) || r;
 
   return r;
 }
@@ -26663,6 +26673,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
           continue;
         }
 #endif
+#ifdef GL_EXT_shader_clock
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"shader_clock", 12))
+        {
+          ret = GLEW_EXT_shader_clock;
+          continue;
+        }
+#endif
 #ifdef GL_EXT_shader_framebuffer_fetch
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"shader_framebuffer_fetch", 24))
         {
@@ -27687,6 +27704,13 @@ GLboolean GLEWAPIENTRY glewIsSupported (const char* name)
         if (_glewStrSame3(&pos, &len, (const GLubyte*)"shader_integer_functions", 24))
         {
           ret = GLEW_MESA_shader_integer_functions;
+          continue;
+        }
+#endif
+#ifdef GL_MESA_texture_const_bandwidth
+        if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_const_bandwidth", 23))
+        {
+          ret = GLEW_MESA_texture_const_bandwidth;
           continue;
         }
 #endif
