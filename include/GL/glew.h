@@ -1,6 +1,6 @@
 /*
 ** The OpenGL Extension Wrangler Library
-** Copyright (C) 2008-2019, Nigel Stewart <nigels[]users sourceforge net>
+** Copyright (C) 2008-2024, Nigel Stewart <nigels[]nigels com>
 ** Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
 ** Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
 ** Copyright (C) 2002, Lev Povalahev
@@ -9469,10 +9469,8 @@ typedef void (GLAPIENTRY * PFNGLBLENDEQUATIONEXTPROC) (GLenum mode);
 #define GL_BUFFER_STORAGE_FLAGS_EXT 0x8220
 
 typedef void (GLAPIENTRY * PFNGLBUFFERSTORAGEEXTPROC) (GLenum target, GLsizeiptr size, const void *data, GLbitfield flags);
-typedef void (GLAPIENTRY * PFNGLNAMEDBUFFERSTORAGEEXTPROC) (GLuint buffer, GLsizeiptr size, const void *data, GLbitfield flags);
 
 #define glBufferStorageEXT GLEW_GET_FUN(__glewBufferStorageEXT)
-#define glNamedBufferStorageEXT GLEW_GET_FUN(__glewNamedBufferStorageEXT)
 
 #define GLEW_EXT_buffer_storage GLEW_GET_VAR(__GLEW_EXT_buffer_storage)
 
@@ -12056,6 +12054,15 @@ typedef void (GLAPIENTRY * PFNGLUSESHADERPROGRAMEXTPROC) (GLenum type, GLuint pr
 
 #endif /* GL_EXT_separate_specular_color */
 
+/* -------------------------- GL_EXT_shader_clock -------------------------- */
+
+#ifndef GL_EXT_shader_clock
+#define GL_EXT_shader_clock 1
+
+#define GLEW_EXT_shader_clock GLEW_GET_VAR(__GLEW_EXT_shader_clock)
+
+#endif /* GL_EXT_shader_clock */
+
 /* -------------------- GL_EXT_shader_framebuffer_fetch -------------------- */
 
 #ifndef GL_EXT_shader_framebuffer_fetch
@@ -12316,10 +12323,8 @@ typedef GLsizei (GLAPIENTRY * PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC) (
 #define GL_NUM_SPARSE_LEVELS_EXT 0x91AA
 
 typedef void (GLAPIENTRY * PFNGLTEXPAGECOMMITMENTEXTPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
-typedef void (GLAPIENTRY * PFNGLTEXTUREPAGECOMMITMENTEXTPROC) (GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLboolean commit);
 
 #define glTexPageCommitmentEXT GLEW_GET_FUN(__glewTexPageCommitmentEXT)
-#define glTexturePageCommitmentEXT GLEW_GET_FUN(__glewTexturePageCommitmentEXT)
 
 #define GLEW_EXT_sparse_texture GLEW_GET_VAR(__GLEW_EXT_sparse_texture)
 
@@ -14913,6 +14918,17 @@ typedef void (GLAPIENTRY * PFNGLRESIZEBUFFERSMESAPROC) (void);
 #define GLEW_MESA_shader_integer_functions GLEW_GET_VAR(__GLEW_MESA_shader_integer_functions)
 
 #endif /* GL_MESA_shader_integer_functions */
+
+/* -------------------- GL_MESA_texture_const_bandwidth -------------------- */
+
+#ifndef GL_MESA_texture_const_bandwidth
+#define GL_MESA_texture_const_bandwidth 1
+
+#define GL_CONST_BW_TILING_MESA 0x8BBE
+
+#define GLEW_MESA_texture_const_bandwidth GLEW_GET_VAR(__GLEW_MESA_texture_const_bandwidth)
+
+#endif /* GL_MESA_texture_const_bandwidth */
 
 /* ----------------------- GL_MESA_tile_raster_order ----------------------- */
 
@@ -24012,7 +24028,6 @@ GLEW_FUN_EXPORT PFNGLBLENDFUNCSEPARATEEXTPROC __glewBlendFuncSeparateEXT;
 GLEW_FUN_EXPORT PFNGLBLENDEQUATIONEXTPROC __glewBlendEquationEXT;
 
 GLEW_FUN_EXPORT PFNGLBUFFERSTORAGEEXTPROC __glewBufferStorageEXT;
-GLEW_FUN_EXPORT PFNGLNAMEDBUFFERSTORAGEEXTPROC __glewNamedBufferStorageEXT;
 
 GLEW_FUN_EXPORT PFNGLCLEARTEXIMAGEEXTPROC __glewClearTexImageEXT;
 GLEW_FUN_EXPORT PFNGLCLEARTEXSUBIMAGEEXTPROC __glewClearTexSubImageEXT;
@@ -24561,7 +24576,6 @@ GLEW_FUN_EXPORT PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC __glewFramebufferPi
 GLEW_FUN_EXPORT PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC __glewGetFramebufferPixelLocalStorageSizeEXT;
 
 GLEW_FUN_EXPORT PFNGLTEXPAGECOMMITMENTEXTPROC __glewTexPageCommitmentEXT;
-GLEW_FUN_EXPORT PFNGLTEXTUREPAGECOMMITMENTEXTPROC __glewTexturePageCommitmentEXT;
 
 GLEW_FUN_EXPORT PFNGLACTIVESTENCILFACEEXTPROC __glewActiveStencilFaceEXT;
 
@@ -26218,6 +26232,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_EXT_semaphore_win32;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_separate_depth_stencil;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_separate_shader_objects;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_separate_specular_color;
+GLEW_VAR_EXPORT GLboolean __GLEW_EXT_shader_clock;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_shader_framebuffer_fetch;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_shader_framebuffer_fetch_non_coherent;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_shader_group_vote;
@@ -26360,6 +26375,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_MESA_pack_invert;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_program_binary_formats;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_resize_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_shader_integer_functions;
+GLEW_VAR_EXPORT GLboolean __GLEW_MESA_texture_const_bandwidth;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_tile_raster_order;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_window_pos;
 GLEW_VAR_EXPORT GLboolean __GLEW_MESA_ycbcr_texture;
